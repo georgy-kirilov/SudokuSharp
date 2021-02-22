@@ -20,14 +20,13 @@
             }
 
             this.grid = new int[sideSize, sideSize];
+            this.Size = sideSize;
             this.subSquareWidth = subSquareWidth;
             this.subSquareHeight = sideSize / subSquareWidth;
             this.passedPositions = new Stack<Position>();
         }
 
-        public int Height => this.grid.GetLength(0);
-
-        public int Width => this.grid.GetLength(1);
+        public int Size { get; }
 
         public int this[int row, int column]
         {
@@ -47,18 +46,18 @@
             }
         }
 
-        public void SolveSudoku()
+        public void Solve()
         {
-            void Solve(Position currentPosition, int startNumber)
-            {
-                if (currentPosition == null)
-                {
-                    return;
-                }
+            Position currentPosition = new Position(0, 0);
+            int startNumber = 1;
 
+            while (currentPosition != null)
+            {
                 if (this[currentPosition] == 0)
                 {
-                    for (int number = startNumber; number <= this.Height; number++)
+                    bool foundPlacableNumber = false;
+
+                    for (int number = startNumber; number <= this.Size; number++)
                     {
                         bool isNumberPlacable = this.IsRowFreeOf(number, currentPosition.Row) && this.IsColumnFreeOf(number, currentPosition.Column) && this.IsSquareFreeOf(number, currentPosition);
 
@@ -66,62 +65,114 @@
                         {
                             this[currentPosition] = number;
                             this.passedPositions.Push(currentPosition);
-                            
-                            Solve(currentPosition.NextHorizontal(this.Height, this.Width), 1);
-                            return;
+                            startNumber = 1;
+                            foundPlacableNumber = true;
+                            break;
                         }
                     }
-                    
-                    currentPosition = this.passedPositions.Pop();
-                    startNumber = this[currentPosition] + 1;
-                    this[currentPosition] = 0;
-                    Solve(currentPosition, startNumber);
-                    return;
+
+                    if (!foundPlacableNumber)
+                    {
+                        currentPosition = this.passedPositions.Pop();
+                        startNumber = this[currentPosition] + 1;
+                        this[currentPosition] = 0;
+                    }
                 }
-                if (currentPosition != null)
+                else
                 {
-                    Solve(currentPosition.NextHorizontal(this.Height, this.Width), 1);
+                    currentPosition = currentPosition.NextHorizontal(this.Size, this.Size);
+                    startNumber = 1;
                 }
             }
-
-            Solve(new Position(0, 0), 1);
         }
 
         public override string ToString()
         {
             var gridBuilder = new StringBuilder();
-            for (int row = 0; row < this.Height; row++)
+            string rowSeparationLine = "";
+            int subSquareRealWidth = 2 * this.subSquareWidth + 3;
+            int nextPlusIndex = subSquareRealWidth;
+            int end = this.Size / this.subSquareWidth * (2 * this.subSquareWidth + 1) + this.Size / this.subSquareWidth + 1;
+
+            for (int column = 1; column <= end; column++)
             {
-                for (int column = 0; column < this.Width; column++)
+                if (column == end || column == 1)
                 {
-                    gridBuilder.Append($"{this[row, column]} ");
+                    rowSeparationLine += "+";
                 }
-                gridBuilder.AppendLine();
+                else if (column == nextPlusIndex)
+                {
+                    rowSeparationLine += "+";
+                    nextPlusIndex += subSquareRealWidth - 1;
+                }
+                else
+                {
+                    rowSeparationLine += "-";
+                }
+            }
+
+            for (int row = 0; row < this.Size; row++)
+            {
+                if (row == 0)
+                {
+                    gridBuilder.AppendLine(rowSeparationLine);
+                }
+
+                for (int column = 0; column < this.Size; column++)
+                {
+                    if (column == 0)
+                    {
+                        gridBuilder.Append("| ");
+                    }
+
+                    gridBuilder.Append($"{this[row, column]} ");
+
+                    if (column == this.Size - 1)
+                    {
+                        gridBuilder.Append("|");
+                    }
+                    else if ((column + 1) % this.subSquareWidth == 0 && column < this.Size - 1)
+                    {
+                        gridBuilder.Append("| ");
+                    }
+                }
+
+                if ((row + 1) % this.subSquareHeight == 0)
+                {
+                    gridBuilder.AppendLine("\n" + rowSeparationLine);
+                }
+                else
+                {
+                    gridBuilder.AppendLine();
+
+                }
             }
             return gridBuilder.ToString().TrimEnd();
         }
 
         private bool IsRowFreeOf(int number, int row)
         {
-            for (int column = 0; column < this.Width; column++)
+            for (int column = 0; column < this.Size; column++)
             {
                 if (this[row, column] == number)
                 {
                     return false;
                 }
             }
+
             return true;
         }
 
         private bool IsColumnFreeOf(int number, int column)
         {
-            for (int row = 0; row < this.Height; row++)
+            for (int row = 0; row < this.Size; row++)
             {
-                if (this.grid[row, column] == number)
+                if (this[row, column] == number)
                 {
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -143,6 +194,7 @@
                     }
                 }
             }
+
             return true;
         }
     }

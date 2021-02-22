@@ -6,7 +6,7 @@ namespace SudokuSharp
     {
         static void Main(string[] args)
         {
-            var sudokuGrid = new SudokuGrid(4, 2);
+            var sudokuGrid = new SudokuGrid(21, 3);
             var rawNineByNineGrid = new string[]
             {
                 "003020600",
@@ -22,12 +22,50 @@ namespace SudokuSharp
 
             var sixBySixRawGrid = new string[]
             {
-                "210043",
+                "001000",
+                "000600",
+                "100030",
+                "040002",
+                "002000",
+                "000200",
+            };
+
+            var sixBySixRawGrid2 = new string[]
+            {
                 "000000",
-                "006200",
-                "003400",
                 "000000",
-                "340056",
+                "000000",
+                "000000",
+                "000000",
+                "000000",
+            };
+
+            var eightByEight = new string[]
+            {
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+            };
+
+            var twelveByTwelve = new string[]
+            {
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
+                "000000000000",
             };
 
             var fourByFourRawGrid = new string[]
@@ -43,9 +81,30 @@ namespace SudokuSharp
             //"1342",
             //"4231",
 
-            SudokuInput(sudokuGrid, fourByFourRawGrid);
+            var largeGrid = new int[20, 20];
+
+            for (int i = 0; i < 21; i++)
+            {
+                for (int j = 0; j < 21; j++)
+                {
+                    sudokuGrid[i, j] = 0;
+                }
+            }
+
+            var emptyRawGrid = new string[]
+            {
+                "003000000",
+                "000000000",
+                "000000000",
+                "000000040",
+                "000000000",
+                "000600000",
+                "000600000",
+                "000000000",
+                "000000050",
+            };
             
-            sudokuGrid.SolveSudoku();
+            sudokuGrid.Solve();
             Console.WriteLine(sudokuGrid);
         }
 
